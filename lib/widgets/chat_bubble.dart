@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import '../models/message_model.dart';
 import '../utils/markdown_formatter.dart';
 import 'package:intl/intl.dart';
+import '../widgets/speak_button.dart';
 
 class ChatBubble extends StatelessWidget {
   final Message message;
+  final TextToSpeechService? ttsService;
 
-  const ChatBubble({Key? key, required this.message}) : super(key: key);
+  const ChatBubble(
+    {
+    super.key, required this.message, this.ttsService});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +34,7 @@ class ChatBubble extends StatelessWidget {
               backgroundColor: Colors.blue[700],
               child: Padding(
                 padding: EdgeInsets.all(8.0),
-                child: Image.asset('deepseek-logo-inverted.png'),
+                child: Image.asset('assets/deepseek-logo-inverted.png'),
               ),
             ),
           const SizedBox(width: 8),
@@ -69,6 +73,11 @@ class ChatBubble extends StatelessWidget {
             CircleAvatar(
               backgroundColor: Colors.blue,
               child: Text('Yo'),
+            ),
+          if (!isUser)
+            SpeakButton(
+              text: message.content,
+              ttsService: ttsService!,
             ),
         ],
       ),

@@ -7,7 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 class MessageInput extends StatefulWidget {
   final Function(String) onSendMessage;
 
-  const MessageInput({Key? key, required this.onSendMessage}) : super(key: key);
+  const MessageInput({super.key, required this.onSendMessage});
 
   @override
   _MessageInputState createState() => _MessageInputState();
@@ -133,7 +133,6 @@ class _MessageInputState extends State<MessageInput> {
     }
   }
 
-  /// Comienza a escuchar la entrada de voz con mejor manejo de errores
   Future<void> _startListening() async {
     print('startListening');
     // Limpiar mensajes de error previos
@@ -154,9 +153,7 @@ class _MessageInputState extends State<MessageInput> {
       }
     }
     
-    // Verificar si la inicialización fue exitosa
     if (!_speechEnabled) {
-      // Intentar inicializar de nuevo
       await _initSpeech();
       if (!_speechEnabled) {
         setState(() {
@@ -167,7 +164,6 @@ class _MessageInputState extends State<MessageInput> {
     }
     
     try {
-      // Obtener todos los idiomas disponibles
       var locales = await _speechToText.locales();
       String localeId = 'es_ES';
       
@@ -247,7 +243,7 @@ class _MessageInputState extends State<MessageInput> {
       ),
       child: Column(
         children: [
-          // Mostrar mensaje de error si existe
+          // Pa mostrar el mensaje de error
           if (_errorMessage.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
@@ -260,7 +256,6 @@ class _MessageInputState extends State<MessageInput> {
               ),
             ),
             
-          // Indicador de reconocimiento
           if (_isListening)
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
@@ -340,8 +335,8 @@ class _MessageInputState extends State<MessageInput> {
               // Botón de enviar
               FloatingActionButton(
                 onPressed: _handleSubmit,
-                child: const Icon(Icons.send),
                 mini: true,
+                child: const Icon(Icons.send),
               ),
             ],
           ),

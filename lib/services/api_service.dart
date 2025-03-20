@@ -17,7 +17,7 @@ class ApiService {
         ...messages.map((message) => {
           'role': message.isUser ? 'user' : 'assistant',
           'content': message.content,
-        }).toList(),
+        }),
       ];
 
       final response = await http.post(
@@ -25,8 +25,8 @@ class ApiService {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Authorization': 'Bearer $apiKey',
-          'HTTP-Referer': 'https://app-with-deepseek.com', // Requerido por OpenRouter
-          'X-Title': 'Flutter Deepseek Chat App', // Nombre de tu aplicación
+          'HTTP-Referer': 'https://app-with-deepseek.com',
+          'X-Title': 'Deepseek Chat App',
         },
         body: jsonEncode({
           'model': 'deepseek/deepseek-chat',

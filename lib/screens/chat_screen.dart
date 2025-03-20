@@ -4,6 +4,7 @@ import '../models/chat_model.dart';
 import '../services/api_service.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/message_input.dart';
+import '../widgets/speak_button.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final Chat _chat = Chat();
   final ApiService _apiService = ApiService();
+  final TextToSpeechService _ttsService = TextToSpeechService();
   bool _isLoading = false;
 
   void requestMicrophonePermission() async {
@@ -80,7 +82,8 @@ class _ChatScreenState extends State<ChatScreen> {
               reverse: false,
               itemBuilder: (context, index) {
                 final message = _chat.messages[index];
-                return ChatBubble(message: message);
+                return ChatBubble(message: message,
+                ttsService: _ttsService);
               },
             ),
           ),
