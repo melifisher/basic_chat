@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/message_model.dart';
 import '../models/chat_model.dart';
-import '../services/api_service.dart';
+import '../services/langachain_service.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/message_input.dart';
 import '../widgets/speak_button.dart';
@@ -16,7 +16,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final Chat _chat = Chat();
-  final ApiService _apiService = ApiService();
+  final LangchainService _apiService = LangchainService();
   final TextToSpeechService _ttsService = TextToSpeechService();
   bool _isLoading = false;
 
@@ -49,7 +49,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       // Enviar mensaje a la API
-      final response = await _apiService.sendMessage(_chat.messages);
+      final response = await _apiService.search(content);
       
       setState(() {
         // Agregar respuesta del asistente

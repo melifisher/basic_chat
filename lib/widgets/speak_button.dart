@@ -20,6 +20,7 @@ class TextToSpeechService {
     await flutterTts.setSpeechRate(0.5);
     await flutterTts.setVolume(1.0);
     await flutterTts.setPitch(1.0);  
+    await setVoiceGender("female");
     
     flutterTts.setCompletionHandler(() {
       _isSpeaking = false;
@@ -27,6 +28,17 @@ class TextToSpeechService {
         onStateChanged!();
       }
     });
+  }
+//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
+  Future<void> setVoiceGender(String gender) async {
+    List<dynamic> voices = await flutterTts.getVoices;
+
+    var selectedVoice = voices.firstWhere(
+      (voice) => voice["gender"] == gender,
+      orElse: () => voices.first,
+    );
+
+    await flutterTts.setVoice({"name": selectedVoice["name"], "locale": selectedVoice["locale"]});
   }
   
   Future<void> speak(String text) async {
