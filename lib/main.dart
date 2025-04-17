@@ -1,8 +1,17 @@
+import './providers/tts_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'screens/chat_screen.dart';
 
 void main() {
-  runApp(const ChatApp());
+  runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => TtsProvider()),
+        
+      ],
+      child: ChatApp(),
+    ),
+  );
 }
 
 class ChatApp extends StatelessWidget {

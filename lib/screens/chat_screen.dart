@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/message_model.dart';
 import '../models/chat_model.dart';
+import '../models/response_model.dart';
 import '../services/langachain_service.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/message_input.dart';
-import '../widgets/speak_button.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -17,7 +17,6 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final Chat _chat = Chat();
   final LangchainService _apiService = LangchainService();
-  final TextToSpeechService _ttsService = TextToSpeechService();
   bool _isLoading = false;
 
   void requestMicrophonePermission() async {
@@ -31,11 +30,6 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     requestMicrophonePermission();
-    // Mensaje de bienvenida
-    _chat.addMessage(Message(
-      content: "¡Hola! Soy Deepseek. ¿En qué puedo ayudarte hoy?",
-      isUser: false,
-    ));
   }
 
   void _sendMessage(String content) async {
@@ -53,7 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
       
       setState(() {
         // Agregar respuesta del asistente
-        _chat.addMessage(Message(content: response, isUser: false));
+        _chat.addMessage(Message(content: response.response, isUser: false, response: response));
         _isLoading = false;
       });
     } catch (e) {
@@ -67,23 +61,96 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void _submitFeedback(Message message, int rating) async {
+    try {
+      // Find the user query that corresponds to this response
+      int responseIndex = _chat.messages.indexOf(message);
+      String userQuery = "";
+      
+      // Search backwards from the response to find the last user message
+      for (int i = responseIndex - 1; i >= 0; i--) {
+        if (_chat.messages[i].isUser) {
+          userQuery = _chat.messages[i].content;
+          break;
+        }
+      }
+
+      if (userQuery.isNotEmpty) {
+        // Submit feedback
+        final result = await _apiService.feedback(
+          userQuery, 
+          message.content, 
+          rating==1?5:0, 
+          message.response!.results
+        );
+
+        // Update message with feedback status
+        setState(() {
+          final updatedMessages = List<Message>.from(_chat.messages);
+          final messageIndex = updatedMessages.indexOf(message);
+          if (messageIndex != -1) {
+            updatedMessages[messageIndex] = Message(
+              content: message.content,
+              isUser: message.isUser,
+              response: message.response,
+              timestamp: message.timestamp,
+              feedback: rating,
+            );
+            _chat.messages = updatedMessages;
+          }
+        });
+
+        // Optional: Show a snackbar to confirm feedback was sent
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('¡Gracias por tu feedback!'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      // Handle feedback submission error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al enviar feedback. Por favor, intenta de nuevo.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat con Deepseek'),
+        title: const Text('Asistente Vial BO'),
       ),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(8.0),
-              itemCount: _chat.messages.length,
+              itemCount: _chat.messages.length + 1,
               reverse: false,
               itemBuilder: (context, index) {
-                final message = _chat.messages[index];
-                return ChatBubble(message: message,
-                ttsService: _ttsService);
+                if (index == 0) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5.0),
+                    child: Text(
+                      '¿Con qué puedo ayudarte?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color.fromARGB(185, 158, 158, 158),
+                      ),
+                    ),
+                  );
+                }
+                final message = _chat.messages[index - 1];
+                return ChatBubble(
+                  message: message,
+                  onFeedback: !message.isUser ? _submitFeedback : null,
+                );
               },
             ),
           ),
@@ -94,7 +161,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           MessageInput(onSendMessage: _sendMessage),
         ],
-      ),
-    );
+      ),    );
   }
 }

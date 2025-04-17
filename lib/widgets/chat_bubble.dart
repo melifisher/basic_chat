@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import '../models/message_model.dart';
+import '../models/response_model.dart';
 import '../utils/markdown_formatter.dart';
 import 'package:intl/intl.dart';
 import '../widgets/speak_button.dart';
+import '../widgets/feedback_buttons.dart';
 
 class ChatBubble extends StatelessWidget {
   final Message message;
-  final TextToSpeechService? ttsService;
+  final Response? response;
+  final Function(Message message, int rating)? onFeedback;
 
-  const ChatBubble(
-    {
-    super.key, required this.message, this.ttsService});
+  const ChatBubble({
+    super.key,
+    required this.message,
+    this.response,
+    this.onFeedback,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -57,12 +63,23 @@ class ChatBubble extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    timeFormat.format(message.timestamp),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isUser ? Colors.white70 : Colors.black54,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        timeFormat.format(message.timestamp),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isUser ? Colors.white70 : Colors.black54,
+                        ),
+                      ),
+                      if (!isUser && onFeedback != null)
+                        FeedbackButtons(
+                          hasFeedback: message.feedback != null,
+                          currentFeedback: message.feedback,
+                          onFeedback: (rating) => onFeedback!(message, rating),
+                        ),
+                    ],
                   ),
                 ],
               ),
@@ -72,12 +89,12 @@ class ChatBubble extends StatelessWidget {
           if (isUser)
             CircleAvatar(
               backgroundColor: Colors.blue,
-              child: Text('Yo'),
+              child: Text('Yo', style: TextStyle(color: Colors.white)),
             ),
           if (!isUser)
             SpeakButton(
-              text: message.content,
-              ttsService: ttsService!,
+              text: message.content, 
+              id: message.response !=null? message.response!.id!: message.content,
             ),
         ],
       ),
