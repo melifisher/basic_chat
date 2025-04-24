@@ -4,7 +4,7 @@ class Response {
   final int resultCount;
   final List<Result> results;
   final String status;
-  String? id;
+  final String id;
 
   Response({
     required this.query,
@@ -12,7 +12,7 @@ class Response {
     required this.resultCount,
     required this.results,
     required this.status,
-    this.id,
+    required this.id,
   });
 
   factory Response.fromJson(Map<String, dynamic> json) {
@@ -29,6 +29,7 @@ class Response {
               .toList() ??
           [],
       status: json['status'] ?? 'error',
+      id: json['response_id'] ?? '',
     );
   }
 }

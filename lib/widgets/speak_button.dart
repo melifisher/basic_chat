@@ -12,7 +12,7 @@ class SpeakButton extends StatelessWidget {
   final Color activeBackgroundColor;
 
   const SpeakButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.id,
     this.size = 20,
@@ -20,7 +20,7 @@ class SpeakButton extends StatelessWidget {
     this.inactiveColor = Colors.grey,
     this.backgroundColor = Colors.transparent,
     this.activeBackgroundColor = const Color(0xFFE0E0E0),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

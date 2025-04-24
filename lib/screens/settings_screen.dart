@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/tts_provider.dart';
 
 class VoiceSettingsScreen extends StatelessWidget {
+  const VoiceSettingsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Consumer<TtsProvider>(

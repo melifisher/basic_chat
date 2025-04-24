@@ -56,9 +56,7 @@ class LangchainService {
       print('Response status code: ${response.statusCode}');
       print(response.body);
       if (response.statusCode == 200) {
-        final responseFinal =Response.fromJson(jsonDecode(response.body));
-        responseFinal.id = DateTime.now().millisecondsSinceEpoch.toString();
-        return responseFinal;
+        return Response.fromJson(jsonDecode(response.body));
         // Verificar si hay resultados
         // if (jsonResponse['results'] != null && jsonResponse['results'] is List) {
         //   // Extraer todos los 'content' y unirlos con saltos de línea

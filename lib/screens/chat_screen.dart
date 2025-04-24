@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/message_model.dart';
 import '../models/chat_model.dart';
-import '../models/response_model.dart';
 import '../services/langachain_service.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/message_input.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../widgets/drawer.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -125,6 +125,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: const Text('Asistente Vial BO'),
       ),
+      drawer: DrawerWidget(),
       body: Column(
         children: [
           Expanded(
