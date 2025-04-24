@@ -1,3 +1,4 @@
+import 'package:basic_chat/models/context_cache.dart';
 import 'package:flutter/material.dart';
 import '../models/message_model.dart';
 import '../models/chat_model.dart';
@@ -18,6 +19,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final Chat _chat = Chat();
   final LangchainService _apiService = LangchainService();
   bool _isLoading = false;
+  final contextCache = ContextCache();
 
   void requestMicrophonePermission() async {
     var status = await Permission.microphone.status;
@@ -43,19 +45,47 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       // Enviar mensaje a la API
-      final response = await _apiService.search(content);
-      
+      // Usando operadores null-coalescing para valores por defecto
+      await contextCache.init();
+      final oldQuestion = await contextCache.getUltimateQuestion() ?? "";
+      final oldResponseFull = await contextCache.getUltimateAnswerFull() ?? "";
+
+      final responseApi = await _apiService.search(
+        content,
+        oldQuestion,
+        oldResponseFull,
+      );
+
+      if (responseApi.isNewContext) {
+        await contextCache.clearHistory();
+        await contextCache.addEntry(
+          question: responseApi.query,
+          answerFull: responseApi.results,
+          answerSummary: responseApi.response,
+        );
+      }
+
       setState(() {
         // Agregar respuesta del asistente
-        _chat.addMessage(Message(content: response.response, isUser: false, response: response));
+        _chat.addMessage(
+          Message(
+            content: responseApi.response,
+            isUser: false,
+            response: responseApi,
+          ),
+        );
+
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _chat.addMessage(Message(
-          content: "Error: No se pudo conectar con Deepseek. Por favor, intenta de nuevo.",
-          isUser: false,
-        ));
+        _chat.addMessage(
+          Message(
+            content:
+                "Error: No se pudo conectar con Deepseek. Por favor, intenta de nuevo.",
+            isUser: false,
+          ),
+        );
         _isLoading = false;
       });
     }
@@ -66,7 +96,7 @@ class _ChatScreenState extends State<ChatScreen> {
       // Find the user query that corresponds to this response
       int responseIndex = _chat.messages.indexOf(message);
       String userQuery = "";
-      
+
       // Search backwards from the response to find the last user message
       for (int i = responseIndex - 1; i >= 0; i--) {
         if (_chat.messages[i].isUser) {
@@ -78,10 +108,10 @@ class _ChatScreenState extends State<ChatScreen> {
       if (userQuery.isNotEmpty) {
         // Submit feedback
         final result = await _apiService.feedback(
-          userQuery, 
-          message.content, 
-          rating==1?5:0, 
-          message.response!.results
+          userQuery,
+          message.content,
+          rating == 1 ? 5 : 0,
+          message.response!.results,
         );
 
         // Update message with feedback status
@@ -112,7 +142,9 @@ class _ChatScreenState extends State<ChatScreen> {
       // Handle feedback submission error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error al enviar feedback. Por favor, intenta de nuevo.'),
+          content: Text(
+            'Error al enviar feedback. Por favor, intenta de nuevo.',
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -122,9 +154,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Asistente Vial BO'),
-      ),
+      appBar: AppBar(title: const Text('Asistente Vial BO')),
       body: Column(
         children: [
           Expanded(
@@ -161,6 +191,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           MessageInput(onSendMessage: _sendMessage),
         ],
-      ),    );
+      ),
+    );
   }
 }
