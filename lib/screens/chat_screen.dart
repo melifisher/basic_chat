@@ -28,14 +28,20 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void initCache() async {
+    await contextCache.init();
+  }
+
   @override
   void initState() {
     super.initState();
     requestMicrophonePermission();
+    initCache();
   }
 
   void _sendMessage(String content) async {
     if (content.trim().isEmpty) return;
+    String tempHistory = "";
 
     setState(() {
       // Agregar mensaje del usuario
@@ -46,14 +52,18 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       // Enviar mensaje a la API
       // Usando operadores null-coalescing para valores por defecto
-      await contextCache.init();
       final oldQuestion = await contextCache.getUltimateQuestion() ?? "";
       final oldResponseFull = await contextCache.getUltimateAnswerFull() ?? "";
+
+      final List<HistoryEntry> historial = await contextCache.getSummaries(
+        limit: 8,
+      );
 
       final responseApi = await _apiService.search(
         content,
         oldQuestion,
         oldResponseFull,
+        historial,
       );
 
       if (responseApi.isNewContext) {
@@ -64,6 +74,12 @@ class _ChatScreenState extends State<ChatScreen> {
           answerSummary: responseApi.response,
         );
       }
+      tempHistory =
+          "pregunta: $content <;>  su respuesta: ${responseApi.response}";
+      //Almacena en la tabla symmary la pregunta y respuesta resumida
+
+      await contextCache.addSummary(summary: tempHistory);
+      //await contextCache.clearSummaries();
 
       setState(() {
         // Agregar respuesta del asistente

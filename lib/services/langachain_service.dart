@@ -1,9 +1,10 @@
+import 'package:basic_chat/models/context_cache.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../models/response_model.dart';
 
 class LangchainService {
-  final String baseUrl = 'http://192.168.0.13:5000/api'; //192.168.123.92
+  final String baseUrl = 'http://192.168.0.7:5000/api'; //192.168.123.92
 
   /// Initializes the Langchain service
   /// Returns a Future<bool> indicating whether the Langchain service was successfully initialized
@@ -44,7 +45,8 @@ class LangchainService {
   Future<Response> search(
     String query,
     String oldquery,
-    String oldresponsefull, {
+    String oldresponsefull,
+    List<HistoryEntry> historial, {
     int k = 5,
   }) async {
     try {
@@ -52,6 +54,9 @@ class LangchainService {
       print('k: $k');
       print('oldquery: $oldquery');
       print('oldresponsefull: $oldresponsefull');
+      List<String> summaries = historial.map((e) => e.summary).toList();
+      print('summaries: $summaries');
+
       final response = await http.post(
         Uri.parse('$baseUrl/search'),
         headers: {'Content-Type': 'application/json'},
@@ -60,6 +65,7 @@ class LangchainService {
           'k': k,
           'oldquestion': oldquery,
           'oldresponsefull': oldresponsefull,
+          'summaries': summaries,
         }),
       );
       print('Response status code: ${response.statusCode}');

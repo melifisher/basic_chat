@@ -14,7 +14,7 @@ class ContextCache {
 
     _db = await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE IF NOT EXISTS context (
@@ -22,6 +22,14 @@ class ContextCache {
             question TEXT NOT NULL,
             answer_full TEXT NOT NULL,
             answer_summary TEXT NOT NULL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+          );
+        ''');
+
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            summary TEXT NOT NULL,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
           );
         ''');
@@ -51,6 +59,10 @@ class ContextCache {
     });
   }
 
+  Future<void> addSummary({required String summary}) async {
+    await _db.insert('history', {'summary': summary});
+  }
+
   Future<List<ContextEntry>> getHistory({int limit = 10}) async {
     final maps = await _db.query(
       'context',
@@ -59,6 +71,16 @@ class ContextCache {
     );
 
     return maps.map((map) => ContextEntry.fromMap(map)).toList();
+  }
+
+  Future<List<HistoryEntry>> getSummaries({int limit = 10}) async {
+    final maps = await _db.query(
+      'history',
+      orderBy: 'timestamp DESC',
+      limit: limit,
+    );
+
+    return maps.map((map) => HistoryEntry.fromMap(map)).toList();
   }
 
   Future<String?> getUltimateQuestion() async {
@@ -87,6 +109,10 @@ class ContextCache {
     await _db.delete('context');
   }
 
+  Future<void> clearSummaries() async {
+    await _db.delete('history');
+  }
+
   Future<void> close() async {
     await _db.close();
   }
@@ -113,6 +139,26 @@ class ContextEntry {
       question: map['question'] as String,
       answerFull: map['answer_full'] as String,
       answerSummary: map['answer_summary'] as String,
+      timestamp: DateTime.parse(map['timestamp'] as String),
+    );
+  }
+}
+
+class HistoryEntry {
+  final int id;
+  final String summary;
+  final DateTime timestamp;
+
+  HistoryEntry({
+    required this.id,
+    required this.summary,
+    required this.timestamp,
+  });
+
+  factory HistoryEntry.fromMap(Map<String, dynamic> map) {
+    return HistoryEntry(
+      id: map['id'] as int,
+      summary: map['summary'] as String,
       timestamp: DateTime.parse(map['timestamp'] as String),
     );
   }
