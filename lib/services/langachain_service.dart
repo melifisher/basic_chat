@@ -74,18 +74,6 @@ class LangchainService {
         final responseFinal = Response.fromJson(jsonDecode(response.body));
         responseFinal.id = DateTime.now().millisecondsSinceEpoch.toString();
         return responseFinal;
-        // Verificar si hay resultados
-        // if (jsonResponse['results'] != null && jsonResponse['results'] is List) {
-        //   // Extraer todos los 'content' y unirlos con saltos de línea
-        //   final contents = (jsonResponse['results'] as List)
-        //       .map<String>((result) => result['content']?.toString() ?? '')
-        //       .where((content) => content.isNotEmpty)
-        //       .join('\n\n');
-
-        //   return contents;
-        // } else {
-        //   return 'No results found';
-        // }
       } else {
         print('Search failed with status code: ${response.statusCode}');
         throw {

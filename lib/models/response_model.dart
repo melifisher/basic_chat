@@ -5,7 +5,7 @@ class Response {
   final List<Result> results;
   final String status;
   final bool isNewContext;
-  String? id;
+  final String id;
 
   Response({
     required this.query,
@@ -14,7 +14,7 @@ class Response {
     required this.results,
     required this.status,
     required this.isNewContext,
-    this.id,
+    required this.id,
   });
 
   factory Response.fromJson(Map<String, dynamic> json) {
@@ -35,6 +35,7 @@ class Response {
           [],
       status: json['status'] ?? 'error',
       isNewContext: json['isnewcontext'] ?? true,
+      id: json['response_id'] ?? '',
     );
   }
 }

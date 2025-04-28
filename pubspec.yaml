@@ -43,6 +43,7 @@ dependencies:
   convert:
   provider:
   shared_preferences:
+  go_router:
 
 dev_dependencies:
   flutter_test:
@@ -74,7 +75,7 @@ flutter:
     - .env
     - assets/deepseek-logo.png
     - assets/deepseek-logo-inverted.png
-  #   - images/a_dot_burr.jpeg
+    - assets/user-icon.jpg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
