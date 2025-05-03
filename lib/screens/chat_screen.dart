@@ -1,4 +1,5 @@
 import 'package:basic_chat/models/context_cache.dart';
+import 'package:basic_chat/screens/searchlocal_screen.dart';
 import 'package:flutter/material.dart';
 import '../models/message_model.dart';
 import '../models/chat_model.dart';
@@ -170,7 +171,33 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Asistente Vial BO')),
+      appBar: AppBar(
+        title: const Text('Asistente Vial BO'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SearchLocalScreen()),
+              );
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: const Color.fromARGB(
+                255,
+                235,
+                213,
+                250,
+              ), // Fondo del botón
+              foregroundColor: Colors.white, // Color del texto y ripple
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+            child: const Text(
+              'Búsqueda sin Internet',
+              style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
+            ),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
