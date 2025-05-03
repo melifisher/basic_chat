@@ -1,9 +1,17 @@
 import './providers/tts_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/chat_screen.dart';
 import 'routes/router.dart';
-void main() {
+import 'models/fragment_models/document_fragment.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+
+Future<void> main() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(DocumentFragmentAdapter());
+  await Hive.openBox<DocumentFragment>('fragments');
+
   runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TtsProvider()),
