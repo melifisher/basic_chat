@@ -133,6 +133,30 @@ class _FragmentSearchScreenState extends State<FragmentSearchScreen> with Single
     }
   }
   
+  Future<void> _loadFragments() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      
+      await DocumentFragmentService.fetchFragments("langchain");
+      
+      setState(() {
+        _isLoading = false;
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Fragments loaded successfully')),
+      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading fragments: $e')),
+      );
+    }
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -144,6 +168,11 @@ class _FragmentSearchScreenState extends State<FragmentSearchScreen> with Single
         title: const Text('Busqueda de Documentos'),
         centerTitle: false,
         elevation: 0,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _loadFragments,
+        tooltip: 'Subir archivo',
+        child: const Icon(Icons.upload_file)
       ),
       body: Column(
         children: [
