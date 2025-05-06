@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../models/fragment_models/document_fragment_with_matches.dart';
-import '../models/fragment_models/document_fragment.dart';
 import '../services/document_fragment_service.dart';
+import 'fragment_detail_screen.dart';
 
 class FragmentSearchScreen extends StatefulWidget {
   const FragmentSearchScreen({super.key});
@@ -12,16 +12,16 @@ class FragmentSearchScreen extends StatefulWidget {
 }
 
 class _FragmentSearchScreenState extends State<FragmentSearchScreen> with SingleTickerProviderStateMixin {
-  final TextEditingController _searchController = TextEditingController();
   final _service = DocumentFragmentService();
   List<DocumentFragmentWithMatches> _searchResults = [];
+  final TextEditingController _searchController = TextEditingController();
   bool _isLoading = false;
   bool _hasSearched = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   final FocusNode _searchFocusNode = FocusNode();
   Timer? _debounce;
-  String _sortBy = ''; 
+  String _sortBy = 'match'; 
   bool _ascending = true;
   List<String> _cleanQueryTerms = [];
 
@@ -104,15 +104,15 @@ class _FragmentSearchScreenState extends State<FragmentSearchScreen> with Single
     });
     
     try {
-      // Simulate a bit of work to allow the UI to update
-      await Future.delayed(Duration(milliseconds: 150));
-      
-      final results = _service.searchByKeywords(query);
+      // await Future.delayed(Duration(milliseconds: 150));
 
-      _cleanQueryTerms = SpanishStopwords.removeStopwords(query.toLowerCase())
+      final cleanQuery = Stopwords.removeStopwords(query.toLowerCase());
+      _cleanQueryTerms = cleanQuery
       .split(RegExp(r'\s+'))
       .where((term) => term.isNotEmpty)
       .toList();
+
+      final results = _service.searchByKeywords(cleanQuery);
 
       setState(() {
         _searchResults = results;
@@ -139,7 +139,7 @@ class _FragmentSearchScreenState extends State<FragmentSearchScreen> with Single
         _isLoading = true;
       });
       
-      await DocumentFragmentService.fetchFragments("langchain");
+      await DocumentFragmentService.fetchFragments(collectionName: "langchain");
       
       setState(() {
         _isLoading = false;
@@ -169,11 +169,13 @@ class _FragmentSearchScreenState extends State<FragmentSearchScreen> with Single
         centerTitle: false,
         elevation: 0,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _loadFragments,
-        tooltip: 'Subir archivo',
-        child: const Icon(Icons.upload_file)
-      ),
+      floatingActionButton: _service.isEmpty() 
+        ? FloatingActionButton(
+            onPressed: _loadFragments,
+            tooltip: 'Subir archivo',
+            child: const Icon(Icons.upload_file)
+          )
+        : null,
       body: Column(
         children: [
           Container(
@@ -486,210 +488,3 @@ class _FragmentSearchScreenState extends State<FragmentSearchScreen> with Single
     );
   }
 }
-
-class FragmentDetailScreen extends StatelessWidget {
-  final DocumentFragment fragment;
-  final int matchCount;
-  
-  const FragmentDetailScreen({
-    Key? key, 
-    required this.fragment,
-    required this.matchCount,
-  }) : super(key: key);
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Fragment Detail'),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header with match count
-            Container(
-              color: Theme.of(context).primaryColor,
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '$matchCount ${matchCount == 1 ? 'match' : 'matches'}',
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Document ID: ${fragment.documentId}',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Text content
-            Container(
-              margin: EdgeInsets.all(16),
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Content',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  SelectableText(
-                    fragment.text,
-                    style: TextStyle(
-                      fontSize: 16,
-                      height: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Metadata
-            if (fragment.metadata.isNotEmpty)
-              Container(
-                margin: EdgeInsets.all(16),
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Metadata',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                    SizedBox(height: 12),
-                    ...fragment.metadata.entries.map((entry) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 100,
-                              child: Text(
-                                '${entry.key}:',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey.shade700,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: SelectableText(
-                                '${entry.value}',
-                                style: TextStyle(
-                                  height: 1.5,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-  TextSpan highlightText(String text, List<String> queryTerms) {
-    final List<TextSpan> spans = [];
-    final lowerText = text.toLowerCase();
-    int start = 0;
-
-    while (start < text.length) {
-      int matchStart = -1;
-      int matchEnd = -1;
-      String? matchedTerm;
-
-      for (final term in queryTerms) {
-        final lowerTerm = term.toLowerCase();
-        final index = lowerText.indexOf(lowerTerm, start);
-        if (index >= 0 && (matchStart == -1 || index < matchStart)) {
-          matchStart = index;
-          matchEnd = index + lowerTerm.length;
-          matchedTerm = text.substring(matchStart, matchEnd);
-        }
-      }
-
-      if (matchStart == -1) {
-        spans.add(TextSpan(text: text.substring(start)));
-        break;
-      }
-
-      if (matchStart > start) {
-        spans.add(TextSpan(text: text.substring(start, matchStart)));
-      }
-
-      spans.add(TextSpan(
-        text: matchedTerm,
-        style: const TextStyle(
-          backgroundColor: Colors.yellow,
-          fontWeight: FontWeight.bold,
-        ),
-      ));
-
-      start = matchEnd;
-    }
-
-    return TextSpan(style: const TextStyle(color: Colors.black), children: spans);
-  }

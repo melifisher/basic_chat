@@ -2,11 +2,11 @@ import 'package:basic_chat/models/context_cache.dart';
 import 'package:flutter/material.dart';
 import '../models/message_model.dart';
 import '../models/chat_model.dart';
-import '../services/langachain_service.dart';
+import '../services/langchain_service.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/message_input.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../widgets/drawer.dart';
+import '../widgets/drawer_widget.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});

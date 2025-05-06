@@ -6,7 +6,7 @@ import 'package:ml_linalg/linalg.dart';
 import '../models/fragment_models/document_fragment.dart';
 import '../models/fragment_models/document_fragment_with_matches.dart';
 
-class SpanishStopwords {
+class Stopwords {
   static final Set<String> stopwords = {
     'a', 'al', 'algo', 'algunas', 'algunos', 'ante', 'antes', 'como',
     'con', 'contra', 'cual', 'cuando', 'de', 'del', 'desde', 'donde',
@@ -58,12 +58,11 @@ class SpanishStopwords {
   }
 }
 
-// Service to handle API requests and local data storage
 class DocumentFragmentService {
   static final String apiUrl = 'http://192.168.0.24:5000/api';
 
   // Fetch fragments from API
-  static Future<List<DocumentFragment>> fetchFragments(String collectionName) async {
+  static Future<List<DocumentFragment>> fetchFragments({String collectionName = 'langchain'}) async {
     final url = Uri.parse('$apiUrl/export_fragments/$collectionName');
     final response = await http.get(url);
 
@@ -90,8 +89,6 @@ class DocumentFragmentService {
       throw Exception('Failed to load fragments: ${response.statusCode}');
     }
   }
-
-  // Get all available collections
   static Future<List<String>> getCollections() async {
     print('in getCollections');
     final url = Uri.parse('$apiUrl/collections');
@@ -105,19 +102,22 @@ class DocumentFragmentService {
       throw Exception('Failed to load collections');
     }
   }
+
+  bool isEmpty() {
+    final fragmentsBox = Hive.box<DocumentFragment>('fragments');
+
+    return fragmentsBox.isEmpty;
+  }
   
-  // Method to search fragments with keywords
   List<DocumentFragmentWithMatches> searchByKeywords(String query) {
     final fragmentsBox = Hive.box<DocumentFragment>('fragments');
     final fragments = fragmentsBox.values.toList();
     
-    // Remove stopwords from query
-    final cleanQuery = SpanishStopwords.removeStopwords(query.toLowerCase());
-    final queryTerms = cleanQuery.split(RegExp(r'\s+'))
+    // final cleanQuery = Stopwords.removeStopwords(query.toLowerCase());
+    final queryTerms = query.split(RegExp(r'\s+'))
         .where((term) => term.isNotEmpty)
         .toList();
     
-    // Enhanced keyword matching with match count
     return fragments.map((fragment) {
       final text = fragment.text.toLowerCase();
       int matchCount = 0;
@@ -135,7 +135,7 @@ class DocumentFragmentService {
     })
     .where((result) => result.matchCount > 0)
     .toList()
-    ..sort((a, b) => b.matchCount.compareTo(a.matchCount)); // Sort by match count
+    ..sort((a, b) => b.matchCount.compareTo(a.matchCount)); 
   }
   
   // Method to search by vector similarity
@@ -153,7 +153,7 @@ class DocumentFragmentService {
     final fragments = fragmentsBox.values.toList();
     
     // Clean query (remove stopwords)
-    final cleanQuery = SpanishStopwords.removeStopwords(query.toLowerCase());
+    final cleanQuery = Stopwords.removeStopwords(query.toLowerCase());
     
     // In a real implementation, you would get this from your API:
     // final queryEmbedding = await apiService.getEmbedding(cleanQuery); 
@@ -193,7 +193,6 @@ class DocumentFragmentService {
     return matches / queryTerms.length;
   }
   
-  // Method to calculate cosine similarity between two vectors
   static double cosineSimilarity(List<double> vec1, List<double> vec2) {
     if (vec1.length != vec2.length) {
       throw Exception('Vectors must have the same dimensions');

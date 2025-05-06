@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import '../services/document_fragment_service.dart';
+import 'package:path_provider/path_provider.dart';
+import '../models/fragment_models/document_fragment.dart';
 
 class DocumentSearchScreen extends StatefulWidget {
   const DocumentSearchScreen({super.key});
@@ -17,7 +20,7 @@ class _DocumentSearchScreenState extends State<DocumentSearchScreen> with Single
   List<DocumentItem> _searchResults = [];
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-
+  
   @override
   void initState() {
     super.initState();
@@ -29,6 +32,7 @@ class _DocumentSearchScreenState extends State<DocumentSearchScreen> with Single
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
     _searchController.addListener(_onSearchChanged);
+
   }
 
   @override
@@ -61,9 +65,6 @@ class _DocumentSearchScreenState extends State<DocumentSearchScreen> with Single
       _isLoading = true;
       _hasSearched = true;
     });
-
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
 
     // Mock search results - replace with your API call
     final mockResults = [
@@ -357,7 +358,7 @@ class DocumentResultCard extends StatelessWidget {
   String _highlightSnippet(String snippet, String term) {
     if (term.isEmpty) return snippet;
 
-    // This is a simplified approach - in a real app, you'd use a proper highlighting library
+    // use a proper highlighting library
     // or implement a more sophisticated algorithm for highlighting
     final parts = snippet.split(RegExp(term, caseSensitive: false));
     
