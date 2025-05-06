@@ -29,17 +29,25 @@ class VoiceSettingsScreen extends StatelessWidget {
               ),
               
               // Control para cambiar género de voz
-              DropdownButtonFormField<String>(
-                value: ttsProvider.voiceGender,
-                decoration: InputDecoration(labelText: 'Género de voz'),
-                items: [
-                  DropdownMenuItem(value: 'female', child: Text('Femenino')),
-                  DropdownMenuItem(value: 'male', child: Text('Masculino')),
-                ],
-                onChanged: (value) {
-                  if (value != null) ttsProvider.setVoiceGender(value);
-                },
-              ),
+              // DropdownButton<Map<String, dynamic>>(
+              //   value: ttsProvider.voice,
+              //   hint: Text("Selecciona una voz"),
+              //   isExpanded: true,
+              //   items: ttsProvider.voices.map((voice) {
+              //     final name = voice["name"] ?? "Sin nombre";
+              //     final locale = voice["locale"] ?? "Sin locale";
+              //     final gender = voice["gender"] ?? "Sin género";
+              //     return DropdownMenuItem<Map<String, dynamic>>(
+              //       value: voice,
+              //       child: Text("$name | $locale | $gender"),
+              //     );
+              //   }).toList(),
+              //   onChanged: (newVoice) {
+              //     setState(() {
+              //       selectedVoice = newVoice;
+              //     });
+              //   },
+              // ),
               
               // Slider para velocidad de habla
               Slider(

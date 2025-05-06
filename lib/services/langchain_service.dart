@@ -4,7 +4,7 @@ import 'dart:convert';
 import '../models/response_model.dart';
 
 class LangchainService {
-  final String baseUrl = 'http://192.168.0.7:5000/api'; //192.168.123.92
+  final String baseUrl = 'http://192.168.178.17:5000/api'; //192.168.123.92
 
   /// Initializes the Langchain service
   /// Returns a Future<bool> indicating whether the Langchain service was successfully initialized
