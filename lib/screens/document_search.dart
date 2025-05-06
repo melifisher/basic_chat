@@ -4,6 +4,7 @@ import '../services/document_fragment_service.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/fragment_models/document_fragment.dart';
 
+//NO USADO!
 class DocumentSearchScreen extends StatefulWidget {
   const DocumentSearchScreen({super.key});
 

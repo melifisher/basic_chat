@@ -28,7 +28,7 @@ class VoiceSettingsScreen extends StatelessWidget {
                 },
               ),
               
-              // Control para cambiar género de voz
+              // para cambiar género de voz
               // DropdownButton<Map<String, dynamic>>(
               //   value: ttsProvider.voice,
               //   hint: Text("Selecciona una voz"),
@@ -60,9 +60,6 @@ class VoiceSettingsScreen extends StatelessWidget {
               ),
               Text('Velocidad: ${ttsProvider.speechRate.toStringAsFixed(1)}'),
               
-              // Controles similares para volumen y tono...
-              
-              // Botón para probar la configuración actual
               ElevatedButton(
                 onPressed: () => ttsProvider.speak('Este es un texto de prueba para verificar la configuración de voz.', 'test'),
                 child: Text('Probar configuración'),

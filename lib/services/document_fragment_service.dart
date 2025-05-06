@@ -78,7 +78,6 @@ class DocumentFragmentService {
         );
       }).toList();
       
-      // Store fragments in local Hive DB
       final fragmentsBox = Hive.box<DocumentFragment>('fragments');
       await fragmentsBox.clear();
       await fragmentsBox.addAll(fragments);
@@ -155,7 +154,6 @@ class DocumentFragmentService {
     final sortedFragments = fragments.toList()
       ..sort((a, b) => scores[b]!.compareTo(scores[a]!));
     
-    // Return top results
     return sortedFragments.take(limit).toList();
   }
   

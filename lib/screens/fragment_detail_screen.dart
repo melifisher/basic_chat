@@ -22,7 +22,6 @@ class FragmentDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header with match count
             Container(
               color: Theme.of(context).primaryColor,
               padding: EdgeInsets.all(16),

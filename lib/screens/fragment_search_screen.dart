@@ -172,7 +172,7 @@ class _FragmentSearchScreenState extends State<FragmentSearchScreen> with Single
       floatingActionButton: _service.isEmpty() 
         ? FloatingActionButton(
             onPressed: _loadFragments,
-            tooltip: 'Subir archivo',
+            tooltip: 'Cargar fragmentos',
             child: const Icon(Icons.upload_file)
           )
         : null,
