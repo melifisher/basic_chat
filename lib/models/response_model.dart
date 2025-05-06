@@ -4,7 +4,8 @@ class Response {
   final int resultCount;
   final List<Result> results;
   final String status;
-  String? id;
+  final bool isNewContext;
+  final String id;
 
   Response({
     required this.query,
@@ -12,7 +13,8 @@ class Response {
     required this.resultCount,
     required this.results,
     required this.status,
-    this.id,
+    required this.isNewContext,
+    required this.id,
   });
 
   factory Response.fromJson(Map<String, dynamic> json) {
@@ -20,15 +22,20 @@ class Response {
       query: json['query'] ?? '',
       response: json['response'] ?? '',
       resultCount: json['resultCount'] ?? 0,
-      results: (json['results'] as List<dynamic>?)
-              ?.map((item) => Result(
-                    content: item['content'] ?? '',
-                    id: item['id'] ?? 0,
-                    metadata: item['metadata'],
-                  ))
+      results:
+          (json['results'] as List<dynamic>?)
+              ?.map(
+                (item) => Result(
+                  content: item['content'] ?? '',
+                  id: item['id'] ?? 0,
+                  metadata: item['metadata'],
+                ),
+              )
               .toList() ??
           [],
       status: json['status'] ?? 'error',
+      isNewContext: json['isnewcontext'] ?? true,
+      id: json['response_id'] ?? '',
     );
   }
 }
@@ -38,17 +45,9 @@ class Result {
   final int id;
   final dynamic metadata;
 
-  Result({
-    required this.content,
-    required this.id,
-    required this.metadata,
-  });
+  Result({required this.content, required this.id, required this.metadata});
 
   Map<String, dynamic> toJson() {
-    return {
-      'content': content,
-      'id': id,
-      'metadata': metadata,
-    };
+    return {'content': content, 'id': id, 'metadata': metadata};
   }
 }

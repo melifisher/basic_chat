@@ -13,7 +13,7 @@ class TtsProvider extends ChangeNotifier {
   double _speechRate = 0.6;
   double _volume = 1.0;
   double _pitch = 1.5;
-  String _voiceGender = "female";
+  String _voice='';
   
   // Getters
   bool get isSpeaking => _isSpeaking;
@@ -22,11 +22,14 @@ class TtsProvider extends ChangeNotifier {
   double get speechRate => _speechRate;
   double get volume => _volume;
   double get pitch => _pitch;
-  String get voiceGender => _voiceGender;
+  String get voice => _voice;
   
+  List<Map<String, dynamic>> voices=[];
+
   TtsProvider() {
     _loadPreferences();
     _initTts();
+    _setVoices();
   }
   
   Future<void> _loadPreferences() async {
@@ -35,9 +38,8 @@ class TtsProvider extends ChangeNotifier {
     _language = prefs.getString('tts_language') ?? "es-MX";
     _speechRate = prefs.getDouble('tts_speech_rate') ?? 0.6;
     _volume = prefs.getDouble('tts_volume') ?? 1.0;
-    _pitch = prefs.getDouble('tts_pitch') ?? 1.5;
-    _voiceGender = prefs.getString('tts_voice_gender') ?? "female";
-    
+    _pitch = prefs.getDouble('tts_pitch') ?? 1.0;
+    _voice = prefs.getString('tts_voice')??'';
     await _applySettings();
     notifyListeners();
   }
@@ -49,7 +51,7 @@ class TtsProvider extends ChangeNotifier {
     await prefs.setDouble('tts_speech_rate', _speechRate);
     await prefs.setDouble('tts_volume', _volume);
     await prefs.setDouble('tts_pitch', _pitch);
-    await prefs.setString('tts_voice_gender', _voiceGender);
+    await prefs.setString('tts_voice', _voice);
   }
   
   Future<void> _initTts() async {
@@ -67,14 +69,25 @@ class TtsProvider extends ChangeNotifier {
     await flutterTts.setSpeechRate(_speechRate);
     await flutterTts.setVolume(_volume);
     await flutterTts.setPitch(_pitch);
-    await setVoiceGender(_voiceGender);
+    // await setVoiceGender(_voice);
   }
 
-  Future<void> setVoiceGender(String gender) async {
-  //   List<dynamic> voices = await flutterTts.
+  Future<void> _setVoices() async {
+    voices = await flutterTts.getVoices;
   }
 
-  //Don't know if this is ok
+  Future<void> setVoiceGender(Map<String, dynamic> selectedVoice) async {
+    if (selectedVoice != null) {
+      await flutterTts.setVoice({
+        "name": selectedVoice["name"],
+        "locale": selectedVoice["locale"],
+      });
+      _voice = selectedVoice["name"];
+      await _savePreferences();
+      notifyListeners();
+    }
+  }
+
   Future<void> setLanguage(String language) async {
     _language = language;
     await flutterTts.setLanguage(language);

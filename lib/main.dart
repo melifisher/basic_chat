@@ -1,13 +1,20 @@
 import './providers/tts_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/chat_screen.dart';
+import 'routes/router.dart';
+import 'models/fragment_models/document_fragment.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+
+Future<void> main() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(DocumentFragmentAdapter());
+  await Hive.openBox<DocumentFragment>('fragments');
+
   runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TtsProvider()),
-        
       ],
       child: ChatApp(),
     ),
@@ -19,14 +26,14 @@ class ChatApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Deepseek Chat',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const ChatScreen(),
       debugShowCheckedModeBanner: false,
+      routerConfig: router,
     );
   }
 }

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/tts_provider.dart';
 
 class VoiceSettingsScreen extends StatelessWidget {
+  const VoiceSettingsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Consumer<TtsProvider>(
@@ -26,18 +28,26 @@ class VoiceSettingsScreen extends StatelessWidget {
                 },
               ),
               
-              // Control para cambiar género de voz
-              DropdownButtonFormField<String>(
-                value: ttsProvider.voiceGender,
-                decoration: InputDecoration(labelText: 'Género de voz'),
-                items: [
-                  DropdownMenuItem(value: 'female', child: Text('Femenino')),
-                  DropdownMenuItem(value: 'male', child: Text('Masculino')),
-                ],
-                onChanged: (value) {
-                  if (value != null) ttsProvider.setVoiceGender(value);
-                },
-              ),
+              // para cambiar género de voz
+              // DropdownButton<Map<String, dynamic>>(
+              //   value: ttsProvider.voice,
+              //   hint: Text("Selecciona una voz"),
+              //   isExpanded: true,
+              //   items: ttsProvider.voices.map((voice) {
+              //     final name = voice["name"] ?? "Sin nombre";
+              //     final locale = voice["locale"] ?? "Sin locale";
+              //     final gender = voice["gender"] ?? "Sin género";
+              //     return DropdownMenuItem<Map<String, dynamic>>(
+              //       value: voice,
+              //       child: Text("$name | $locale | $gender"),
+              //     );
+              //   }).toList(),
+              //   onChanged: (newVoice) {
+              //     setState(() {
+              //       selectedVoice = newVoice;
+              //     });
+              //   },
+              // ),
               
               // Slider para velocidad de habla
               Slider(
@@ -50,9 +60,6 @@ class VoiceSettingsScreen extends StatelessWidget {
               ),
               Text('Velocidad: ${ttsProvider.speechRate.toStringAsFixed(1)}'),
               
-              // Controles similares para volumen y tono...
-              
-              // Botón para probar la configuración actual
               ElevatedButton(
                 onPressed: () => ttsProvider.speak('Este es un texto de prueba para verificar la configuración de voz.', 'test'),
                 child: Text('Probar configuración'),
