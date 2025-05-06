@@ -59,9 +59,8 @@ class Stopwords {
 }
 
 class DocumentFragmentService {
-  static final String apiUrl = 'http://192.168.0.24:5000/api';
+  static final String apiUrl = 'http://192.168.239.18:5000/api';
 
-  // Fetch fragments from API
   static Future<List<DocumentFragment>> fetchFragments({String collectionName = 'langchain'}) async {
     final url = Uri.parse('$apiUrl/export_fragments/$collectionName');
     final response = await http.get(url);
@@ -123,7 +122,6 @@ class DocumentFragmentService {
       int matchCount = 0;
       
       for (final term in queryTerms) {
-        // Count occurrences of each term
         final matches = term.allMatches(text);
         matchCount += matches.length;
       }
@@ -138,39 +136,22 @@ class DocumentFragmentService {
     ..sort((a, b) => b.matchCount.compareTo(a.matchCount)); 
   }
   
-  // Method to search by vector similarity
   static Future<List<DocumentFragment>> searchBySimilarity(
       String query, {int limit = 5}) async {
-    // This would normally call your API to create an embedding for the query
-    // But for simplicity, we'll simulate it with a local approach
     
-    // In a real implementation, you would:
-    // 1. Call your API to get the embedding for the query
-    // 2. Compare it with stored embeddings
-    
-    // Simulating the process for demonstration:
     final fragmentsBox = Hive.box<DocumentFragment>('fragments');
     final fragments = fragmentsBox.values.toList();
     
-    // Clean query (remove stopwords)
     final cleanQuery = Stopwords.removeStopwords(query.toLowerCase());
     
-    // In a real implementation, you would get this from your API:
-    // final queryEmbedding = await apiService.getEmbedding(cleanQuery); 
     
-    // For demo purposes, let's assume we have the query embedding:
-    // (In reality, you'd call your API to get this)
-    
-    // Instead, we'll use keyword-based scoring for the demo
     Map<DocumentFragment, double> scores = {};
     
     for (var fragment in fragments) {
-      // Calculate similarity score (in a real app, use cosine similarity)
       double score = _calculateKeywordSimilarity(fragment.text, cleanQuery);
       scores[fragment] = score;
     }
     
-    // Sort fragments by similarity score
     final sortedFragments = fragments.toList()
       ..sort((a, b) => scores[b]!.compareTo(scores[a]!));
     
@@ -178,7 +159,6 @@ class DocumentFragmentService {
     return sortedFragments.take(limit).toList();
   }
   
-  // Simple keyword similarity function (for demo purposes)
   static double _calculateKeywordSimilarity(String text, String query) {
     text = text.toLowerCase();
     query = query.toLowerCase();

@@ -4,10 +4,8 @@ import 'dart:convert';
 import '../models/response_model.dart';
 
 class LangchainService {
-  final String baseUrl = 'http://192.168.178.17:5000/api'; //192.168.123.92
+  final String baseUrl = 'http://192.168.239.18:5000/api'; //192.168.123.92
 
-  /// Initializes the Langchain service
-  /// Returns a Future<bool> indicating whether the Langchain service was successfully initialized
   Future<bool> initialize() async {
     try {
       final response = await http.post(
@@ -21,12 +19,8 @@ class LangchainService {
     }
   }
 
-  /// Performs a search query in the Langchain system
-  ///
-  /// [query] The search query string
-  /// [k] Number of results to return (default is 2)
-  ///
-  /// Example return format:
+  
+  /// Ejemplo return:
   //    {
   //      "query": "Search query string",
   //      "response": "Search response string",
